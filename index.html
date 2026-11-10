@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Generating Expressive Timing — Vaquero &amp; Honing (AISB 2014)</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#fff;color:#111;font-family:'Source Serif 4',Georgia,serif;font-size:15px;line-height:1.7;}
+.wrap{max-width:720px;margin:0 auto;padding:0 28px 72px;}
+.journal-bar{background:#1a2a3a;color:#8ab4d4;font-family:'Source Sans 3',sans-serif;font-size:11px;letter-spacing:1.5px;padding:7px 28px;display:flex;justify-content:space-between;}
+.title-block{padding:36px 0 24px;border-bottom:2px solid #111;}
+.paper-title{font-family:'Source Serif 4',Georgia,serif;font-size:24px;font-weight:600;line-height:1.3;margin-bottom:18px;color:#111;}
+.author-line{font-family:'Source Sans 3',sans-serif;font-size:13px;color:#333;margin-bottom:4px;}
+.affiliation{font-family:'Source Sans 3',sans-serif;font-size:11.5px;color:#666;font-style:italic;margin-bottom:14px;}
+.venue-line{font-family:'Source Sans 3',sans-serif;font-size:11px;color:#888;letter-spacing:.5px;margin-top:8px;}
+.abstract{margin:20px 0 0;padding:16px 20px;border-left:3px solid #1a2a3a;background:#f7f8fa;}
+.abstract-label{font-family:'Source Sans 3',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#1a2a3a;margin-bottom:6px;}
+.abstract p{font-size:13.5px;line-height:1.65;color:#333;}
+.section{margin-top:36px;}
+h2{font-family:'Source Serif 4',Georgia,serif;font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:4px;border-bottom:1px solid #ccc;color:#111;}
+h2 .sec-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:#888;margin-right:8px;font-weight:400;}
+h3{font-family:'Source Serif 4',Georgia,serif;font-size:14px;font-weight:600;font-style:italic;margin:20px 0 8px;color:#222;}
+p{margin-bottom:12px;}
+p:last-child{margin-bottom:0;}
+.fig{margin:24px 0;text-align:center;}
+.fig-inner{display:inline-block;background:#f7f8fa;border:1px solid #ddd;padding:16px;}
+.fig-cap{margin-top:8px;font-size:12.5px;color:#555;font-style:italic;text-align:left;max-width:540px;margin-left:auto;margin-right:auto;line-height:1.5;}
+.fig-cap strong{font-style:normal;color:#333;}
+.code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#f4f5f7;border:1px solid #ddd;border-left:3px solid #1a2a3a;padding:12px 16px;margin:14px 0;line-height:1.9;color:#1a2a3a;overflow-x:auto;}
+.deriv-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:12px;margin:12px 0;}
+.deriv-table th{background:#1a2a3a;color:#a8c8e8;padding:6px 12px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+.deriv-table td{padding:5px 12px;border-bottom:1px solid #eee;color:#333;}
+.deriv-table td:first-child{color:#888;}
+.cat-row{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+.cat-chip{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:3px 9px;border:1px solid #ddd;border-radius:2px;background:#f7f8fa;color:#333;}
+.math-block{margin:14px 0;text-align:center;}
+.note{font-size:12.5px;color:#555;border-left:2px solid #ccc;padding:8px 14px;margin:14px 0;background:#fafafa;line-height:1.6;}
+.demo-wrap{margin:36px -28px;border-top:2px solid #1a2a3a;border-bottom:2px solid #1a2a3a;background:#111820;}
+.demo-label{display:flex;align-items:center;gap:14px;padding:12px 28px;border-bottom:1px solid #2e4a60;background:#151e28;}
+.demo-label span{font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#2dd4b0;}
+.demo-label em{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:14px;color:#8ab4d4;}
+#app-root{height:580px;overflow:hidden;}
+.refs{margin-top:36px;border-top:2px solid #111;padding-top:18px;}
+.ref-list{list-style:none;counter-reset:r;font-size:12.5px;color:#333;line-height:1.6;}
+.ref-list li{counter-increment:r;padding:5px 0 5px 32px;position:relative;border-bottom:1px solid #f0f0f0;}
+.ref-list li::before{content:"[" counter(r) "]";position:absolute;left:0;font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;top:7px;}
+.ref-list em{font-style:italic;}
+footer{margin-top:48px;padding-top:14px;border-top:1px solid #ddd;text-align:center;font-family:'Source Sans 3',sans-serif;font-size:11px;color:#999;}
+</style>
+</head>
+<body>
+
+<div class="journal-bar">
+  <span>AISB 2014 CONVENTION &middot; Computing &amp; Philosophy</span>
+  <span>University of Goldsmiths, London, April 2014</span>
+</div>
+
+<div class="wrap">
+
+<header class="title-block">
+  <h1 class="paper-title">Generating Expressive Timing by Combining Rhythmic Categories and Lindenmayer Systems</h1>
+  <div class="author-line">Carlos Vaquero Patricio &nbsp;&amp;&nbsp; Henkjan Honing</div>
+  <div class="affiliation">Institute for Logic, Language and Computation &middot; Amsterdam Brain and Cognition &middot; University of Amsterdam</div>
+  <div class="venue-line">Correspondence: c.vaqueropatricio@uva.nl</div>
+  <div class="abstract">
+    <div class="abstract-label">Abstract</div>
+    <p>This paper introduces a novel approach for modelling expressive timing performance by combining cognitive, symbolic, and graphic representations of rhythm spaces with Lindenmayer systems, originally conceived to model the evolution of biological cell structures and plant growth. Logo-turtle abstractions are proposed to generate expressive rhythmic performances defined by rule-based displacements through perceptual rhythm categories.</p>
+  </div>
+</header>
+
+<section class="section">
+  <h2><span class="sec-num">1.</span>Introduction</h2>
+  <p>In music performance, expressiveness arises from how performers deviate from a literal interpretation. Expressive parameters vary considerably between performers, even within the same piece [2]. We define <em>expressiveness</em> as the deviation from the most frequently heard version of a constituent musical element &mdash; an intrinsic definition, independent of a notated score [8, 11].</p>
+  <p>Memory and expectation play a fundamental role in recognising timing nuances [14, 15, 17]. Performers use non-linear models for features such as <em>ritardandi</em>, producing different expressive renditions each time [13]. Any computational model must therefore incorporate non-linear variation within perceptually constrained bounds. We propose combining Desain &amp; Honing&rsquo;s empirical rhythm categories with Lindenmayer systems and logo-turtle abstractions as an exploratory tool for computational music generation.</p>
+</section>
+
+<section class="section">
+  <h2><span class="sec-num">2.</span>Rhythm Categories and Expressive Timing</h2>
+  <p><em>Rhythmic perceptual categories</em> are the mental clusters by which listeners relate continuous timing to discrete symbolic patterns [5, 15]. Desain &amp; Honing [10] conducted a perceptual experiment in which musically trained participants notated, in music notation, all possible combinations of four-onset rhythms within one second (60 BPM). The resulting data defines a <em>chronotopological map</em>: a triangular space where each point is a rhythm of three inter-onset intervals (I&#x2081;, I&#x2082;, I&#x2083;) summing to 1&thinsp;s. Modal centroids (&bull;) correspond to H&thinsp;=&thinsp;0; category boundaries to H&thinsp;=&thinsp;1.</p>
+  <p>Crucially, the most frequently identified rendition (modal centroid) does <em>not</em> coincide with the integer-ratio metronomic position (&times;) &mdash; the latter may in fact be perceived as expressive [15].</p>
+
+  <div class="fig">
+    <div class="fig-inner" style="display:block;padding:8px;background:#fff">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 330 985 600" style="width:100%;height:auto;display:block" role="img" aria-label="Chronotopological map of rhythm categories"><defs><radialGradient id="glow"><stop offset="0%" stop-color="#8a8a8a" stop-opacity=".62"/><stop offset="100%" stop-color="#8a8a8a" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="1166" height="982" fill="#fff"/><g stroke="#222" stroke-width="1.3" fill="none">
+<line x1="121.6" y1="736.9" x2="583.3" y2="736.9"/>
+<line x1="169.3" y1="819.0" x2="410.7" y2="402.1"/>
+<line x1="557.8" y1="819.0" x2="315.4" y2="402.1"/>
+<line x1="194.7" y1="610.6" x2="509.9" y2="610.6"/>
+<line x1="315.8" y1="819.0" x2="484.2" y2="528.4"/>
+<line x1="411.2" y1="819.0" x2="242.2" y2="528.4"/>
+<line x1="267.9" y1="484.3" x2="436.4" y2="484.3"/>
+<line x1="462.4" y1="819.0" x2="557.6" y2="654.7"/>
+<line x1="264.6" y1="819.0" x2="169.1" y2="654.7"/>
+</g>
+<polygon points="363.0,358.0 107.0,800.0 620.0,800.0" fill="none" stroke="#111" stroke-width="1.6"/>
+<circle cx="378" cy="677" r="44" fill="url(#glow)"/>
+<circle cx="267" cy="724" r="44" fill="url(#glow)"/>
+<circle cx="368" cy="562" r="44" fill="url(#glow)"/>
+<circle cx="460" cy="718" r="44" fill="url(#glow)"/>
+<g fill="none" stroke="#1a1a1a" stroke-width="4.2" stroke-linejoin="miter" shape-rendering="crispEdges">
+<path d="M333,484V490H334V497H335V503H336H341V503H346V502H352V502H357V501H362V501H367V501H373V500H378V500H383V499H388V499H394V498H399V498V504H400V509H402V514H404V520H405V525H404V530H404V535H403V540H403V545H402V551H405V556H407V562H410V568H408V574H407V580H405V585H406V591H407V596H408V602H409V607H410H405V607H400V608H395V608H390V608H385V609H380V609H375V609H370V609H365V609H360V609H355V609H350V609H345V609H340V609H335V609H329V609H324V608H318V608V602H316V596H315V590H313V585H314V580H314V575H315V570H316V565H318V560H319V555H320V550H322V545H323V540H324V535H325V530H326V525H327V520H328V515H328V510H329V505H330V500H331V494H332V489H332V484H333Z"/>
+<path d="M318,608H323V608H328V608H333V608H338V608H343V608H349V608H354V608H359V608H364V608H369V608H374V608H379V609H384V609H389V609H394V609H399V609H405V609H410V609H415V609H420V609H425V609H430V609V615H429V622H429V628H428V634H431V639H434V644H437V650H440V655H437V660H435V665H432H439V672H446V678H439V685H432V692V699H426V706H420H414V711H408V716H402V716H397V716H392V716H386V717H380V717H375V717H370V717H365V717H360V717H355V716H350V716H345V716H340V716V711H338V706H336V700H335V695H333V690H330V684H327V679H324V673H321V668H318V662H319V656H320V651H320V645H321V640H321V635H322V630H322V625H322V619H321V614H319V608H318Z"/>
+<path d="M298,632H304V630H310V628H316V627H322V625V630H322V635H322V640H321V645H321V651H320V656H320V662H319V668H318V673H321V679H324V684H327V690H330V695H333V700H335V706H336V711H338V716H340V722H338V727H335H330V728H324V730H319V731H314V732H308V734H303V735V741H300V747H296H290V747H285V747H279V746H273V746H268V746H262V746H256V745H250V744H244V743H238V742H232V742H226V741H220V740H214V740V734H214V728H215V722H215V716H217V711H220V705H222V700H224V695H226V690H228V684H230V678H231V672H233V666H238V660H242H248V658H253V655H258V652H264V650H269V648H274V646H280V644H285V642H292V637H298V632Z"/>
+<path d="M430,609H435V609H440V608H445V608H450V608H455V607H460V607V613H456V619H451V625H447V630H445V635H444V640H442V646H445V651H449V657H452V663H458V670H464V676H470H475V677H480V679H486V680H491V682H496V683V688H497V694H497V699H498V705H503V710H507V716H512H506V720H500V723V728H499V734H499V739H498H493V740H488V740H483V741H478V742H473V742H468V743H463V742H458V742H452V741H447V740H442V740H437V739V746H432V752H426H421V752H416V752H410V752H405V752H400V752H394V749H387V745H381V742V737H380V731H378V726H377H383V723H390V721H396V718H402V717H408V716H414V711H420V706V699H426V692H432H439V685H446V678H439V672H432V665V660H435V655H437V650H440V644H437V639H434V634H431V628H428V622H429V615H429V609H430Z"/>
+</g>
+<g fill="none" stroke="#1a1a1a" stroke-width="3" shape-rendering="crispEdges">
+<path d="M337,546L339,566L334,588L337,606"/>
+<path d="M272,590L296,591L316,593"/>
+</g>
+<g stroke="#111" stroke-width="3.4"><line x1="355" y1="659" x2="367" y2="671"/><line x1="367" y1="659" x2="355" y2="671"/></g>
+<g stroke="#111" stroke-width="3.4"><line x1="261" y1="702" x2="273" y2="714"/><line x1="273" y1="702" x2="261" y2="714"/></g>
+<g stroke="#111" stroke-width="3.4"><line x1="357" y1="543" x2="369" y2="555"/><line x1="369" y1="543" x2="357" y2="555"/></g>
+<g stroke="#111" stroke-width="3.4"><line x1="447" y1="702" x2="459" y2="714"/><line x1="459" y1="702" x2="447" y2="714"/></g>
+<circle cx="378" cy="677" r="7" fill="#111"/>
+<circle cx="267" cy="724" r="7" fill="#111"/>
+<circle cx="368" cy="562" r="7" fill="#111"/>
+<circle cx="460" cy="718" r="7" fill="#111"/>
+<g font-family="Times New Roman, Times, serif" font-size="26" fill="#222" text-anchor="middle">
+<text x="362" y="462">h</text>
+<text x="325" y="570">f</text>
+<text x="383" y="580">c</text>
+<text x="432" y="587">g</text>
+<text x="268" y="629">s</text>
+<text x="388" y="668">a</text>
+<text x="308" y="694">b</text>
+<text x="477" y="733">d</text>
+<text x="525" y="757">k</text>
+</g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#111" text-anchor="middle">
+<text x="324" y="356">.8</text>
+<text x="642" y="770">.8</text>
+<text x="132" y="841">.8</text>
+<text x="251" y="482">.6</text>
+<text x="569" y="644">.6</text>
+<text x="279" y="841">.6</text>
+<text x="178" y="609">.4</text>
+<text x="495" y="517">.4</text>
+<text x="425" y="841">.4</text>
+<text x="105" y="735">.2</text>
+<text x="422" y="391">.2</text>
+<text x="572" y="841">.2</text>
+</g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#111" text-anchor="middle">
+<text transform="translate(120,539) rotate(-60)">Interval 1 (s) →</text>
+<text transform="translate(584,551) rotate(60)">Interval 3 (s) →</text>
+<text x="365" y="906">← Interval 2 (s)</text>
+</g>
+<g font-family="Helvetica, Arial, sans-serif" fill="#111">
+<rect x="818" y="351" width="205" height="55" fill="#fff" stroke="#111" stroke-width="1.2"/>
+<text x="831" y="371" font-size="22">• modal</text>
+<text x="831" y="395" font-size="22">x metronomical</text>
+<rect x="818" y="438" width="101" height="350" fill="#fff" stroke="#111" stroke-width="1.2"/>
+<text x="830" y="462" font-size="23">Rhythm</text>
+<text x="834" y="492" font-size="19" font-weight="700">a</text>
+<text x="860" y="492" font-size="18">1:1:1</text>
+<text x="834" y="518" font-size="19" font-weight="700">b</text>
+<text x="860" y="518" font-size="18">1:2:1</text>
+<text x="834" y="544" font-size="19" font-weight="700">c</text>
+<text x="860" y="544" font-size="18">2:1:1</text>
+<text x="834" y="569" font-size="19" font-weight="700">d</text>
+<text x="860" y="569" font-size="18">1:1:2</text>
+<text x="834" y="595" font-size="19" font-weight="700">e</text>
+<text x="860" y="595" font-size="18">2:3:1</text>
+<text x="834" y="621" font-size="19" font-weight="700">f</text>
+<text x="860" y="621" font-size="18">4:3:1</text>
+<text x="834" y="647" font-size="19" font-weight="700">g</text>
+<text x="860" y="647" font-size="18">3:1:2</text>
+<text x="834" y="673" font-size="19" font-weight="700">h</text>
+<text x="860" y="673" font-size="18">4:1:1</text>
+<text x="834" y="698" font-size="19" font-weight="700">i</text>
+<text x="860" y="698" font-size="18">1:3:2</text>
+<text x="834" y="724" font-size="19" font-weight="700">j</text>
+<text x="860" y="724" font-size="18">3:1:4</text>
+<text x="834" y="750" font-size="19" font-weight="700">k</text>
+<text x="860" y="750" font-size="18">1:1:4</text>
+<text x="834" y="776" font-size="19" font-weight="700">l</text>
+<text x="860" y="776" font-size="18">2:1:3</text>
+</g></svg>
+    </div>
+    <p class="fig-cap"><strong>Figure 1.</strong> Chronotopological map of rhythmic categories. Each point is a rhythm of four onsets, i.e. three inter-onset intervals (I&#x2081;, I&#x2082;, I&#x2083;) with a total duration of one second. Perceived (modal, &bull;) and integer-related (metronomic, &times;) centroids are marked for categories a&ndash;d; black lines demarcate the perceptual categories, and letters refer to the rhythms in the legend. Redrawn after Desain &amp; Honing (2003) and Honing (2013) [15].</p>
+  </div>
+
+  <div class="cat-row">
+    <span class="cat-chip"><span style="color:#5eead4;font-weight:600">a</span> 1:1:1</span>
+    <span class="cat-chip"><span style="color:#facc15;font-weight:600">b</span> 1:2:1</span>
+    <span class="cat-chip"><span style="color:#f87171;font-weight:600">c</span> 2:1:1</span>
+    <span class="cat-chip"><span style="color:#a78bfa;font-weight:600">d</span> 1:1:2</span>
+    <span class="cat-chip"><span style="color:#fb923c;font-weight:600">e</span> 2:3:1</span>
+    <span class="cat-chip"><span style="color:#34d399;font-weight:600">f</span> 4:3:1</span>
+    <span class="cat-chip"><span style="color:#60a5fa;font-weight:600">g</span> 3:1:2</span>
+    <span class="cat-chip"><span style="color:#f472b6;font-weight:600">h</span> 4:1:1</span>
+    <span class="cat-chip"><span style="color:#c084fc;font-weight:600">i</span> 1:3:2</span>
+    <span class="cat-chip"><span style="color:#22d3ee;font-weight:600">j</span> 3:1:4</span>
+    <span class="cat-chip"><span style="color:#a3e635;font-weight:600">k</span> 1:1:4</span>
+    <span class="cat-chip"><span style="color:#fbbf24;font-weight:600">l</span> 2:1:3</span>
+  </div>
+</section>
+
+<section class="section">
+  <h2><span class="sec-num">3.</span>Lindenmayer Systems</h2>
+  <p>L-systems [21] model structure development via parallel string-rewriting. A grammar \(G = (N, S, \omega, p)\) consists of non-terminals \(N\), terminals \(S\), an initial axiom \(\omega\), and production rules \(p\) applied simultaneously to all symbols. In musical L-systems [23] three rule types are distinguished: <em>production rules</em> (structural rewriting), <em>decomposition rules</em> (unwrapping compound symbols), and <em>interpretation rules</em> (mapping symbols to musical parameters).</p>
+  <h3>Example: Fibonacci sequence with rhythmic interpretation</h3>
+  <div class="code">&#969; : A &nbsp;&nbsp; (A &#x2192; &#x2669; quarter, B &#x2192; &#x1D15F; half)
+p&#x2081; : A &#x2192; B
+p&#x2082; : B &#x2192; AB</div>
+  <table class="deriv-table">
+    <tr><th>n</th><th>String</th><th>Rhythmic output</th></tr>
+    <tr><td>0</td><td>B</td><td>&#x1D15F;</td></tr>
+    <tr><td>1</td><td>AB</td><td>&#x2669; &#x1D15F;</td></tr>
+    <tr><td>2</td><td>BAB</td><td>&#x1D15F; &#x2669; &#x1D15F;</td></tr>
+    <tr><td>3</td><td>ABBAB</td><td>&#x1D15F; &#x2669; &#x2669; &#x1D15F; &#x2669;</td></tr>
+    <tr><td>4</td><td>BABABBAB</td><td>&#x1D15F; &#x2669; &#x1D15F; &#x2669; &#x2669; &#x1D15F; &#x2669; &#x1D15F;</td></tr>
+  </table>
+  <p>Prusinkiewicz [30] extended L-systems with a logo-turtle: state \((x, y, \alpha)\), step \(d\), rotation \(\delta\). Symbol <code>F</code> draws a forward step; <code>+</code> / <code>-</code> rotate. In the present model the turtle navigates the <em>perceptual rhythm space</em> rather than Euclidean geometry.</p>
+</section>
+
+<section class="section">
+  <h2><span class="sec-num">4.</span>Generating Expressiveness with L-Systems</h2>
+  <p>Each rhythm-category symbol (a&ndash;l) is an L-system token; production rules determine which categories are visited and in what order. Within each category, the turtle traces a path through an elliptical approximation of the perceptual boundary. Step size encodes the magnitude of expressive deviation; entropy \(H\) increases from 0 at the modal centroid toward 1 at the boundary.</p>
+  <div class="note">Style-appropriate constraints can be encoded directly in the interpretation rules: small steps for music with little rubato, large steps for highly expressive styles.</div>
+</section>
+
+</div><!-- end .wrap -->
+
+<div class="demo-wrap">
+  <div class="demo-label">
+    <span>&#9654;&nbsp;Interactive Demo</span>
+    <em>L-System Expressive Timing Explorer</em>
+  </div>
+  <div id="app-root"></div>
+</div>
+
+<div class="wrap">
+
+<section class="section">
+  <h2><span class="sec-num">5.</span>Open Challenges</h2>
+  <p><strong>Tempo scaling.</strong> Sadakata et al. [32] suggest timing deviations are tempo-invariant, which may permit morphological inference of category boundaries at untested tempos. <strong>Cross-bar continuity.</strong> Expressive deviations must be consistent across bars; &ldquo;mirroring&rdquo; turtle positions across category boundaries maintains coherence. <strong>Fourth onset.</strong> A weighting scheme [29] can infer the fourth inter-onset interval needed to advance to the next bar.</p>
+</section>
+
+<section class="section">
+  <h2><span class="sec-num">6.</span>Conclusions</h2>
+  <p>We have presented a novel approach to modelling expressive timing performance by combining empirically derived rhythmic categories with Lindenmayer systems and logo-turtle abstractions. The model is perceptually grounded, intrinsically defined with respect to a score, and capable of producing non-linear expressive variation. Initial results are promising for automatic music performance systems, pending formal evaluation.</p>
+</section>
+
+<section class="refs">
+  <h2>References</h2>
+  <ol class="ref-list">
+    <li>B&aring;th et al. (2010). An Oscillator Model of Categorical Rhythm Perception. <em>mindmodeling.org</em>, 1803&ndash;1808.</li>
+    <li>Cheng &amp; Chew (2008). Quantitative analysis of phrasing strategies. <em>J. New Music Research</em>, 37(4).</li>
+    <li>Chew (2012). About time. <em>Visions of Research in Music Education</em>.</li>
+    <li>Chomsky (1956). Three models for the description of language. <em>IRE Trans. Information Theory</em>, 2(3).</li>
+    <li>Clarke (1987). Categorical rhythm perception. <em>Action and perception in rhythm and music</em>.</li>
+    <li>Clarke (1999). Rhythm and Timing in Music. In Deutsch (Ed.), <em>The Psychology of Music</em>. Academic Press.</li>
+    <li>Davies (1994). <em>Musical meaning and expression</em>. Cornell UP.</li>
+    <li>Desain &amp; Honing (1992). The quantization problem. In <em>Understanding Music with AI</em>. MIT Press.</li>
+    <li>Desain &amp; Honing (1994). Does expressive timing scale with tempo? <em>Psychological Research</em>.</li>
+    <li>Desain &amp; Honing (2003). The formation of rhythmic categories. <em>Perception</em>, 32(3), 341&ndash;365.</li>
+    <li>Honing (1992). Expresso. <em>Proc. ICMC</em>.</li>
+    <li>Honing (1993). A microworld approach. <em>Computers and the Humanities</em>, 27(1).</li>
+    <li>Honing (2006). Computational modeling of music cognition. <em>Music Perception</em>.</li>
+    <li>Honing (2011). <em>Musical cognition: a science of listening</em>. Transaction Publishers.</li>
+    <li>Honing (2013). Structure and Interpretation of Rhythm. In Deutsch (Ed.), <em>The Psychology of Music</em> (3rd ed.). Academic Press.</li>
+    <li>Honing &amp; de Haas (2008). Swing once more. <em>Music Perception</em>, 25(5).</li>
+    <li>Huron (2006). <em>Sweet anticipation</em>. MIT Press.</li>
+    <li>Juslin, Friberg &amp; Bresin (2002). The GERM model. <em>Musicae Scientiae</em>.</li>
+    <li>Large (2010). <em>Neurodynamics of music</em>. Springer.</li>
+    <li>Lerdahl &amp; Jackendoff (1983). <em>A generative theory of tonal music</em>. MIT Press.</li>
+    <li>Lindenmayer (1968). Mathematical models for cellular interaction. <em>J. Theoretical Biology</em>, 18(3).</li>
+    <li>London (2000). Musical Expression and Meaning. <em>6th ICMPC</em>.</li>
+    <li>Manousakis (2006). <em>Musical L-systems</em>. Master thesis, Koninklijk Conservatorium, The Hague.</li>
+    <li>Manousakis (2009). Non-Standard Sound Synthesis with L-Systems. <em>Leonardo Music Journal</em>, 19.</li>
+    <li>Mason &amp; Saffle (1994). L-systems and musical structure. <em>Leonardo Music Journal</em>, 4(1).</li>
+    <li>Nevill-Manning &amp; Witten (1997). Hierarchical Structure in Sequences. <em>JAIR</em>, 7(1).</li>
+    <li>Nieminen &amp; Ist&oacute;k (2012). Aesthetic experience of music. <em>Musicae Scientiae</em>, 16(3).</li>
+    <li>Palmer &amp; Krumhansl (1987). Pitch and temporal contributions. <em>Perception &amp; Psychophysics</em>, 41(6).</li>
+    <li>Pearce &amp; Wiggins (2004). Statistical modelling of monophonic music. <em>J. New Music Research</em>.</li>
+    <li>Prusinkiewicz (1986). <em>Score generation with L-systems</em>.</li>
+    <li>Prusinkiewicz &amp; Lindenmayer (1990). <em>The algorithmic beauty of plants</em>. Springer.</li>
+    <li>Sadakata, Desain &amp; Honing (2006). The Bayesian way to relate rhythm perception and production. <em>Music Perception</em>, 23(3).</li>
+    <li>Snyder (2001). <em>Music and memory</em>. MIT Press.</li>
+    <li>Supper (2001). Algorithmic composition. <em>Computer Music Journal</em>, 25(1).</li>
+    <li>Widmer &amp; Goebl (2004). Computational models of expressive performance. <em>J. New Music Research</em>, 33(3).</li>
+  </ol>
+</section>
+
+<footer>Vaquero Patricio &amp; Honing &middot; AISB 2014 &middot; Interactive implementation added for this web presentation</footer>
+
+</div>
+
+<script type="text/babel">
+const{useState,useEffect,useRef,useCallback}=React;
+const TW=420,TH=370,TPAD=38;
+const V0={x:TW/2,y:TPAD},V1={x:TPAD,y:TH-TPAD},V2={x:TW-TPAD,y:TH-TPAD};
+function bary(a,b,c){return{x:a*V0.x+b*V1.x+c*V2.x,y:a*V0.y+b*V1.y+c*V2.y};}
+const CATS={
+  a:{label:"1:1:1",bc:[.333,.333,.333],rx:23,ry:23,rot:0,  col:"#5eead4"},
+  b:{label:"1:2:1",bc:[.25,.50,.25],   rx:26,ry:16,rot:0,  col:"#facc15"},
+  c:{label:"2:1:1",bc:[.50,.25,.25],   rx:23,ry:13,rot:-28,col:"#f87171"},
+  d:{label:"1:1:2",bc:[.25,.25,.50],   rx:23,ry:13,rot:28, col:"#a78bfa"},
+  e:{label:"2:3:1",bc:[.333,.50,.167], rx:18,ry:11,rot:-15,col:"#fb923c"},
+  f:{label:"4:3:1",bc:[.50,.375,.125], rx:14,ry:9, rot:-20,col:"#34d399"},
+  g:{label:"3:1:2",bc:[.50,.167,.333], rx:14,ry:9, rot:20, col:"#60a5fa"},
+  h:{label:"4:1:1",bc:[.667,.167,.167],rx:13,ry:9, rot:0,  col:"#f472b6"},
+  i:{label:"1:3:2",bc:[.167,.50,.333], rx:14,ry:9, rot:15, col:"#c084fc"},
+  j:{label:"3:1:4",bc:[.375,.125,.50], rx:13,ry:9, rot:0,  col:"#22d3ee"},
+  k:{label:"1:1:4",bc:[.167,.167,.667],rx:13,ry:9, rot:0,  col:"#a3e635"},
+  l:{label:"2:1:3",bc:[.333,.167,.50], rx:14,ry:9, rot:25, col:"#fbbf24"},
+};
+function derive(ax,rules,n){let s=ax;for(let i=0;i<n;i++){s=s.split("").map(ch=>rules[ch]||ch).join("");if(s.length>600)break;}return s;}
+function extractCats(str){return str.split("").filter(ch=>CATS[ch]);}
+function parseRules(txt){const r={};txt.split("\n").forEach(ln=>{const[l,rhs]=ln.split(/[→>]/);if(l&&rhs)r[l.trim()]=rhs.trim();});return r;}
+function ellipsePoint(cx,cy,rx,ry,rot,t){const a=t*Math.PI*2,r=rot*Math.PI/180,ex=rx*.65*Math.cos(a),ey=ry*.65*Math.sin(a);return{x:cx+ex*Math.cos(r)-ey*Math.sin(r),y:cy+ex*Math.sin(r)+ey*Math.cos(r)};}
+function catToTimings(id,tp){const cat=CATS[id],[i1,i2,i3]=cat.bc,n=.03,d1=Math.cos(tp*6.28)*n,d2=Math.sin(tp*6.28+1)*n,d3=-(d1+d2),s=(i1+d1)+(i2+d2)+(i3+d3);return[Math.max(.05,(i1+d1)/s),Math.max(.05,(i2+d2)/s),Math.max(.05,(i3+d3)/s)];}
+function playOnsets(tims,spd,wave,vol){try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),ms=spd*.88,offs=[0];let a=0;tims.forEach(v=>{a+=v*ms;offs.push(a);});[220,330,277,370].forEach((hz,i)=>{const t=ctx.currentTime+offs[i]/1000,o=ctx.createOscillator(),e=ctx.createGain();o.type=wave;o.frequency.setValueAtTime(hz,t);const pk=i===0?vol:vol*.55;e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(pk,t+.008);e.gain.exponentialRampToValueAtTime(.001,t+(i===0?.18:.12));o.connect(e);e.connect(ctx.destination);o.start(t);o.stop(t+.25);});setTimeout(()=>ctx.close(),ms+400);}catch(e){}}
+const PRESETS=[{name:"Fibonacci",axiom:"a",rules:"a→ab\nb→ac\nc→b",n:4},{name:"Dragon",axiom:"a",rules:"a→abf\nb→fac\nf→f",n:3},{name:"Koch",axiom:"c",rules:"c→cgcdc\nd→d\ng→g",n:3},{name:"Cantor",axiom:"a",rules:"a→abc\nb→bbb\nc→cbc",n:3}];
+const LS={fontSize:9,letterSpacing:2,color:"#a8c8e8",marginBottom:5,textTransform:"uppercase"};
+const IS={width:"100%",background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,color:"#2dd4b0",fontFamily:"monospace",fontSize:12,padding:"5px 8px",boxSizing:"border-box",outline:"none"};
+const PB={background:"#1a2e42",border:"1px solid #2e4a60",borderRadius:3,color:"#8ab4d4",fontSize:10,padding:"3px 7px",cursor:"pointer",fontFamily:"monospace"};
+const GB={background:"linear-gradient(135deg,#0d3028,#0d2238)",border:"1px solid #2dd4b0",borderRadius:4,color:"#34d399",fontSize:11,padding:"8px 0",cursor:"pointer",fontFamily:"monospace",letterSpacing:2,width:"100%"};
+const CB={background:"#1a2e42",border:"1px solid #2e4a60",borderRadius:4,color:"#d8e8f5",fontSize:11,padding:"4px 10px",cursor:"pointer",fontFamily:"monospace"};
+function App(){
+  const[axiom,setAxiom]=useState("a"),[rulesIn,setRulesIn]=useState("a→ab\nb→ac\nc→b"),[derivN,setDerivN]=useState(4),[lstring,setLstring]=useState(""),[catSeq,setCatSeq]=useState([]),[path,setPath]=useState([]),[animIdx,setAnimIdx]=useState(0),[playing,setPlaying]=useState(false),[speed,setSpeed]=useState(400),[highlight,setHighlight]=useState(null),[soundOn,setSoundOn]=useState(true),[waveform,setWaveform]=useState("sine"),[volume,setVolume]=useState(.4);
+  const timerRef=useRef(null);
+  const generate=useCallback(()=>{const rules=parseRules(rulesIn),str=derive(axiom[0]||"a",rules,derivN),cats=extractCats(str).slice(0,40);setLstring(str.length>90?str.slice(0,90)+"…":str);setCatSeq(cats);setAnimIdx(0);setPlaying(false);const pts=cats.map((id,i)=>{const cat=CATS[id],c=bary(...cat.bc),t=i/Math.max(cats.length-1,1),pt=ellipsePoint(c.x,c.y,cat.rx,cat.ry,cat.rot,t*4.13);return{x:pt.x,y:pt.y,id,cat,timings:catToTimings(id,t),t};});setPath(pts);},[axiom,rulesIn,derivN]);
+  useEffect(()=>{generate();},[]);
+  useEffect(()=>{if(playing&&path.length>0){timerRef.current=setInterval(()=>{setAnimIdx(i=>{if(i>=path.length-1){setPlaying(false);return 0;}const next=i+1;if(soundOn&&path[next])playOnsets(path[next].timings,speed,waveform,volume);return next;})},speed);}return()=>clearInterval(timerRef.current);},[playing,path,speed,soundOn,waveform,volume]);
+  const loadPreset=p=>{setAxiom(p.axiom);setRulesIn(p.rules);setDerivN(p.n);setPlaying(false);setTimeout(generate,0);};
+  const current=path[animIdx],visitedPts=path.slice(0,animIdx+1).map(p=>`${p.x},${p.y}`).join(" "),fullPts=path.map(p=>`${p.x},${p.y}`).join(" ");
+  return(
+    <div style={{background:"#1e2d3d",fontFamily:"monospace",color:"#d8e8f5",display:"flex",flexDirection:"column",height:"580px",overflow:"hidden"}}>
+      <div style={{display:"flex",flex:1,overflow:"hidden",minHeight:0}}>
+        <aside style={{width:220,flexShrink:0,background:"#253545",borderRight:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto"}}>
+          <div><div style={LS}>PRESETS</div><div style={{display:"flex",flexWrap:"wrap",gap:4}}>{PRESETS.map(p=><button key={p.name} onClick={()=>loadPreset(p)} style={PB}>{p.name}</button>)}</div></div>
+          <div><div style={LS}>AXIOM</div><input value={axiom} onChange={e=>setAxiom(e.target.value)} style={IS} maxLength={3}/></div>
+          <div><div style={LS}>PRODUCTION RULES</div><div style={{fontSize:9,color:"#8ab4d4",marginBottom:2}}>one per line, use &#x2192; or &gt;</div><textarea value={rulesIn} onChange={e=>setRulesIn(e.target.value)} style={{...IS,height:72,resize:"vertical",lineHeight:1.6}}/></div>
+          <div><div style={{...LS,display:"flex",justifyContent:"space-between"}}><span>DERIVATIONS</span><span style={{color:"#2dd4b0"}}>{derivN}</span></div><input type="range" min={1} max={6} value={derivN} onChange={e=>setDerivN(+e.target.value)} style={{width:"100%",accentColor:"#2dd4b0"}}/></div>
+          <div><div style={{...LS,display:"flex",justifyContent:"space-between"}}><span>SPEED (ms)</span><span style={{color:"#2dd4b0"}}>{speed}</span></div><input type="range" min={100} max={900} step={50} value={speed} onChange={e=>setSpeed(+e.target.value)} style={{width:"100%",accentColor:"#2dd4b0"}}/></div>
+          <div>
+            <div style={{...LS,display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>SOUND</span><button onClick={()=>setSoundOn(s=>!s)} style={{background:soundOn?"#0d3028":"#1a2e42",border:`1px solid ${soundOn?"#2dd4b0":"#2e4a60"}`,borderRadius:10,color:soundOn?"#2dd4b0":"#8ab4d4",fontSize:9,padding:"2px 7px",cursor:"pointer",fontFamily:"monospace"}}>{soundOn?"ON":"OFF"}</button></div>
+            <div style={{display:"flex",gap:3,marginBottom:4}}>{["sine","triangle","square"].map(w=><button key={w} onClick={()=>setWaveform(w)} style={{flex:1,background:waveform===w?"#0d3028":"#1a2e42",border:`1px solid ${waveform===w?"#2dd4b0":"#2e4a60"}`,borderRadius:3,color:waveform===w?"#2dd4b0":"#8ab4d4",fontSize:9,padding:"2px 0",cursor:"pointer",fontFamily:"monospace"}}>{w}</button>)}</div>
+            <div style={{...LS,display:"flex",justifyContent:"space-between"}}><span>VOLUME</span><span style={{color:"#2dd4b0"}}>{Math.round(volume*100)}%</span></div>
+            <input type="range" min={0} max={100} value={Math.round(volume*100)} onChange={e=>setVolume(e.target.value/100)} style={{width:"100%",accentColor:"#2dd4b0"}}/>
+          </div>
+          <button onClick={generate} style={GB}>&#9654; GENERATE</button>
+          <div><div style={LS}>L-STRING</div><div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"6px 8px",fontSize:10,color:"#2dd4b0",wordBreak:"break-all",lineHeight:1.5,minHeight:34}}>{lstring||"—"}</div></div>
+          <div><div style={LS}>SEQUENCE ({catSeq.length})</div><div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"6px 8px",fontSize:12,wordBreak:"break-all",letterSpacing:2,minHeight:26}}>{catSeq.slice(0,30).map((c,i)=><span key={i} style={{color:CATS[c]?.col||"#d8e8f5",fontWeight:i===animIdx?700:400,textDecoration:i===animIdx?"underline":"none",filter:"brightness(.85)"}}>{c}</span>)}{catSeq.length>30&&<span style={{color:"#8ab4d4"}}>…</span>}</div></div>
+        </aside>
+        <main style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderBottom:"1px solid #2e4a60"}}>
+            <button onClick={()=>{setAnimIdx(0);setPlaying(false);}} style={CB}>&#9612;&#9612;</button>
+            <button onClick={()=>setPlaying(p=>!p)} style={{...CB,background:playing?"#0d3028":"#1a2e42",color:playing?"#34d399":"#d8e8f5"}}>{playing?"&#9646;&#9646; PAUSE":"&#9654; PLAY"}</button>
+            <div style={{fontSize:11,color:"#8ab4d4",marginLeft:6}}>Step {animIdx+1}/{path.length}&nbsp;|&nbsp;{current?<>Cat <span style={{color:current.cat.col}}>{current.id}</span> ({current.cat.label})</>:"—"}</div>
+          </div>
+          <div style={{flex:1,display:"flex",justifyContent:"center",alignItems:"center",padding:8}}>
+            <svg viewBox={`0 0 ${TW} ${TH}`} width={TW} height={TH} style={{maxWidth:"100%",overflow:"visible"}}>
+              <defs>{Object.entries(CATS).map(([id,cat])=><radialGradient key={id} id={`eg_${id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={cat.col} stopOpacity=".2"/><stop offset="100%" stopColor={cat.col} stopOpacity="0"/></radialGradient>)}</defs>
+              <rect x={0} y={0} width={TW} height={TH} fill="#192633"/>
+              <polygon points={`${V0.x},${V0.y} ${V1.x},${V1.y} ${V2.x},${V2.y}`} fill="#253545" stroke="#2e4a60" strokeWidth={1.5}/>
+              <text x={V0.x} y={V0.y-12} textAnchor="middle" fill="#a8c8e8" fontSize={10} fontFamily="monospace">I&#x2081;</text>
+              <text x={V1.x-14} y={V1.y+4} textAnchor="middle" fill="#a8c8e8" fontSize={10} fontFamily="monospace">I&#x2082;</text>
+              <text x={V2.x+14} y={V2.y+4} textAnchor="middle" fill="#a8c8e8" fontSize={10} fontFamily="monospace">I&#x2083;</text>
+              {Object.entries(CATS).map(([id,cat])=>{const c=bary(...cat.bc),isH=highlight===id,isCur=current?.id===id;const[r1,r2,r3]=cat.label.split(":").map(Number),s=r1+r2+r3,m=bary(r1/s,r2/s,r3/s);return(<g key={id} style={{cursor:"pointer"}} onMouseEnter={()=>setHighlight(id)} onMouseLeave={()=>setHighlight(null)}><ellipse cx={c.x} cy={c.y} rx={cat.rx} ry={cat.ry} transform={`rotate(${cat.rot},${c.x},${c.y})`} fill={`url(#eg_${id})`} stroke={cat.col} strokeWidth={isCur?2:isH?1.5:.8} strokeOpacity={isCur?1:isH?.9:.5}/><circle cx={c.x} cy={c.y} r={isCur?4:2.5} fill={cat.col} opacity={isCur?1:.75}/><g opacity={.55}><line x1={m.x-4} y1={m.y-4} x2={m.x+4} y2={m.y+4} stroke={cat.col} strokeWidth={1.2}/><line x1={m.x+4} y1={m.y-4} x2={m.x-4} y2={m.y+4} stroke={cat.col} strokeWidth={1.2}/></g><text x={c.x} y={c.y-cat.ry-4} textAnchor="middle" fontSize={9} fill={cat.col} fontFamily="monospace" opacity={isH||isCur?1:.6}>{id}</text></g>);})}
+              {path.length>1&&<polyline points={fullPts} fill="none" stroke="#2a4a62" strokeWidth={1} strokeDasharray="3,4" opacity={.5}/>}
+              {path.length>1&&animIdx>0&&<polyline points={visitedPts} fill="none" stroke="#2dd4b0" strokeWidth={1.5} opacity={.7}/>}
+              {path.slice(0,animIdx).map((pt,i)=><circle key={i} cx={pt.x} cy={pt.y} r={2.5} fill={pt.cat.col} opacity={.25+.45*(i/animIdx)}/>)}
+              {current&&<g><circle cx={current.x} cy={current.y} r={14} fill="none" stroke={current.cat.col} strokeWidth={1} opacity={.3}><animate attributeName="r" values="10;18;10" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".3;0;.3" dur="1.2s" repeatCount="indefinite"/></circle><circle cx={current.x} cy={current.y} r={5} fill={current.cat.col}/></g>}
+              {highlight&&CATS[highlight]&&(()=>{const cat=CATS[highlight],c=bary(...cat.bc);return<g><rect x={c.x+10} y={c.y-20} width={82} height={26} rx={3} fill="#1e2d3d" stroke={cat.col} strokeWidth={.8}/><text x={c.x+18} y={c.y-7} fontSize={9} fill={cat.col} fontFamily="monospace">{highlight}: {cat.label}</text><text x={c.x+18} y={c.y+4} fontSize={8} fill="#8ab4d4" fontFamily="monospace">&#x2022;modal &#xD7;metro</text></g>;})()} 
+            </svg>
+          </div>
+          <div style={{borderTop:"1px solid #2e4a60",padding:"6px 12px",display:"flex",flexWrap:"wrap",gap:"4px 10px"}}>{Object.entries(CATS).map(([id,cat])=><div key={id} style={{display:"flex",alignItems:"center",gap:3,fontSize:10,cursor:"pointer"}} onMouseEnter={()=>setHighlight(id)} onMouseLeave={()=>setHighlight(null)}><div style={{width:7,height:7,borderRadius:"50%",background:cat.col,opacity:highlight===id?1:.6}}/><span style={{color:highlight===id?cat.col:"#8ab4d4"}}>{id} {cat.label}</span></div>)}</div>
+        </main>
+        <aside style={{width:195,flexShrink:0,background:"#253545",borderLeft:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto",minHeight:0}}>
+          <div style={LS}>TIMING OUTPUT</div>
+          <div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"7px",minHeight:90,overflowY:"auto"}}>
+            {path.slice(0,animIdx+1).map((pt,i)=>{const tims=pt.timings,isCur=i===animIdx;return<div key={i} style={{display:"flex",alignItems:"flex-end",gap:2,marginBottom:4,opacity:isCur?1:.3}}><span style={{fontSize:9,color:"#a8c8e8",width:11}}>{pt.id}</span>{tims.map((v,j)=><div key={j} style={{width:15,height:Math.round(v*55)+4,background:isCur?pt.cat.col:"#2a4a62",filter:isCur?"brightness(.85)":"none",borderRadius:2,transition:"height .3s"}}/>)}<span style={{fontSize:8,color:"#8ab4d4",marginLeft:2}}>{tims.map(v=>v.toFixed(2)).join(":")}</span></div>;})}
+            {path.length===0&&<div style={{color:"#4a6a85",fontSize:11,textAlign:"center",paddingTop:12}}>Play to see timing</div>}
+          </div>
+          {current&&<div style={{background:"#1e2d3d",border:`1px solid ${current.cat.col}`,borderRadius:4,padding:"8px 10px",fontSize:11}}><div style={{color:current.cat.col,marginBottom:4,fontWeight:700,filter:"brightness(1.2)"}}>Cat [{current.id}] {current.cat.label}</div><div style={{color:"#a8c8e8",lineHeight:1.75}}><div>I&#x2081;: <span style={{color:"#d8e8f5"}}>{current.timings[0].toFixed(4)}</span></div><div>I&#x2082;: <span style={{color:"#d8e8f5"}}>{current.timings[1].toFixed(4)}</span></div><div>I&#x2083;: <span style={{color:"#d8e8f5"}}>{current.timings[2].toFixed(4)}</span></div><div style={{marginTop:5,borderTop:"1px solid #2e4a60",paddingTop:5,fontSize:10}}>Modal: [{current.cat.bc.map(v=>v.toFixed(3)).join(", ")}]</div></div></div>}
+          {current&&(()=>{const[m1,m2,m3]=current.cat.bc,[t1,t2,t3]=current.timings,pct=Math.min(1,Math.sqrt((t1-m1)**2+(t2-m2)**2+(t3-m3)**2)/.05);return<div style={{fontSize:11}}><div style={LS}>ENTROPY H</div><div style={{height:7,background:"#1a3048",borderRadius:4,overflow:"hidden",margin:"4px 0"}}><div style={{height:"100%",borderRadius:4,width:`${pct*100}%`,background:"linear-gradient(90deg,#2dd4b0,#f59e0b)",transition:"width .4s"}}/></div><div style={{color:"#8ab4d4",fontSize:10}}>H &#x2248; {pct.toFixed(3)}</div></div>;})()} 
+          <div style={{fontSize:10,color:"#6a8aaa",lineHeight:1.7,borderTop:"1px solid #2e4a60",paddingTop:8}}><div>&#x2022; modal centroid (H=0)</div><div>&#xD7; metronomic position</div></div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("app-root")).render(<App/>);
+</script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  renderMathInElement(document.body,{delimiters:[{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}]});
+});
+</script>
+</body>
+</html>
