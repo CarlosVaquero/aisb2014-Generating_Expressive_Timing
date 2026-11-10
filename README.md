@@ -17,7 +17,7 @@ an internet connection.
 ## Reference
 Vaquero Patricio, C., & Honing, H. (2014). Generating expressive timing by
 combining rhythmic categories and Lindenmayer systems. *AISB 2014.*
-[link to paper]
+[https://doc.gold.ac.uk/aisb50/AISB50-S04/AISB50-S4-Patricio-paper.pdf]
 
 Rhythm category data: Desain, P., & Honing, H. (2003). The formation of
 rhythmic categories and metric priming. *Perception*, 32(3), 341–365.
