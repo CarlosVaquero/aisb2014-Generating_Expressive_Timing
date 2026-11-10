@@ -3,7 +3,7 @@
 Interactive demo accompanying *Generating expressive timing by combining
 rhythmic categories and Lindenmayer systems* (Vaquero Patricio & Honing, AISB 2014).
 
-**▶ Live demo: https://carlosvaquero.github.io/expressive_timing_L-systems/**
+**▶ Live demo: https://carlosvaquero.github.io/aisb2014-Generating_Expressive_Timing/**
 
 A logo-turtle moves through Desain & Honing's perceptual rhythm categories,
 driven by L-system production rules, and generates expressive timing within a
