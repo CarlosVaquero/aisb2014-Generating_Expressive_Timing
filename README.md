@@ -5,7 +5,7 @@ rhythmic categories and Lindenmayer systems* (Vaquero Patricio & Honing, AISB 20
 
 **▶ Live demo: https://carlosvaquero.github.io/aisb2014-Generating_Expressive_Timing/**
 
-A logo-turtle moves through Desain & Honing's perceptual rhythm categories,
+A logo-turtle moves through approximated Desain & Honing's perceptual rhythm categories,
 driven by L-system production rules, and generates expressive timing within a
 four-onset bar. You can edit the axiom and rules, step through the path, and
 hear the resulting onsets.
