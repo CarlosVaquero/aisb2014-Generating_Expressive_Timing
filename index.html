@@ -44,11 +44,23 @@ p:last-child{margin-bottom:0;}
 .cat-chip{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:3px 9px;border:1px solid #ddd;border-radius:2px;background:#f7f8fa;color:#333;}
 .math-block{margin:14px 0;text-align:center;}
 .note{font-size:12.5px;color:#555;border-left:2px solid #ccc;padding:8px 14px;margin:14px 0;background:#fafafa;line-height:1.6;}
-.demo-wrap{margin:36px -28px;border-top:2px solid #1a2a3a;border-bottom:2px solid #1a2a3a;background:#111820;}
+.demo-wrap{margin:36px 0;border-top:2px solid #1a2a3a;border-bottom:2px solid #1a2a3a;background:#111820;}
 .demo-label{display:flex;align-items:center;gap:14px;padding:12px 28px;border-bottom:1px solid #2e4a60;background:#151e28;}
 .demo-label span{font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#2dd4b0;}
 .demo-label em{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:14px;color:#8ab4d4;}
-#app-root{height:580px;overflow:hidden;}
+#app-root{width:100%;}
+.demo-root{height:min(600px,calc(100vh - 90px));min-height:480px;overflow:hidden;}
+.demo-map{min-height:0;}
+@media (max-width:900px){
+  .demo-root{height:auto;min-height:0;overflow:visible;}
+  .demo-row{flex-direction:column !important;overflow:visible !important;}
+  .demo-left,.demo-right{width:100% !important;border:0 !important;border-top:1px solid #2e4a60 !important;overflow:visible !important;}
+  .demo-main{order:-1;}
+  .demo-map{flex:none !important;display:block !important;}
+  .demo-map svg{height:auto !important;max-width:min(100%,540px) !important;}
+  .demo-label{padding:10px 16px;flex-wrap:wrap;gap:6px 14px;}
+  .wrap{padding-left:16px;padding-right:16px;}
+}
 .refs{margin-top:36px;border-top:2px solid #111;padding-top:18px;}
 .ref-list{list-style:none;counter-reset:r;font-size:12.5px;color:#333;line-height:1.6;}
 .ref-list li{counter-increment:r;padding:5px 0 5px 32px;position:relative;border-bottom:1px solid #f0f0f0;}
@@ -70,7 +82,6 @@ footer{margin-top:48px;padding-top:14px;border-top:1px solid #ddd;text-align:cen
   <h1 class="paper-title">Generating Expressive Timing by Combining Rhythmic Categories and Lindenmayer Systems</h1>
   <div class="author-line">Carlos Vaquero Patricio &nbsp;&amp;&nbsp; Henkjan Honing</div>
   <div class="affiliation">Institute for Logic, Language and Computation &middot; Amsterdam Brain and Cognition &middot; University of Amsterdam</div>
-  <div class="venue-line">Correspondence: c.vaqueropatricio@uva.nl</div>
   <div class="abstract">
     <div class="abstract-label">Abstract</div>
     <p>This paper introduces a novel approach for modelling expressive timing performance by combining cognitive, symbolic, and graphic representations of rhythm spaces with Lindenmayer systems, originally conceived to model the evolution of biological cell structures and plant growth. Logo-turtle abstractions are proposed to generate expressive rhythmic performances defined by rule-based displacements through perceptual rhythm categories.</p>
@@ -336,9 +347,9 @@ function App(){
   const loadPreset=p=>{setAxiom(p.axiom);setRulesIn(p.rules);setDerivN(p.n);setPlaying(false);setTimeout(generate,0);};
   const current=path[animIdx],visitedPts=path.slice(0,animIdx+1).map(p=>`${p.x},${p.y}`).join(" "),fullPts=path.map(p=>`${p.x},${p.y}`).join(" ");
   return(
-    <div style={{background:"#1e2d3d",fontFamily:"monospace",color:"#d8e8f5",display:"flex",flexDirection:"column",height:"580px",overflow:"hidden"}}>
-      <div style={{display:"flex",flex:1,overflow:"hidden",minHeight:0}}>
-        <aside style={{width:220,flexShrink:0,background:"#253545",borderRight:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto"}}>
+    <div className="demo-root" style={{background:"#1e2d3d",fontFamily:"monospace",color:"#d8e8f5",display:"flex",flexDirection:"column"}}>
+      <div className="demo-row" style={{display:"flex",flex:1,overflow:"hidden",minHeight:0}}>
+        <aside className="demo-left" style={{width:220,flexShrink:0,background:"#253545",borderRight:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto"}}>
           <div><div style={LS}>PRESETS</div><div style={{display:"flex",flexWrap:"wrap",gap:4}}>{PRESETS.map(p=><button key={p.name} onClick={()=>loadPreset(p)} style={PB}>{p.name}</button>)}</div></div>
           <div><div style={LS}>AXIOM</div><input value={axiom} onChange={e=>setAxiom(e.target.value)} style={IS} maxLength={3}/></div>
           <div><div style={LS}>PRODUCTION RULES</div><div style={{fontSize:9,color:"#8ab4d4",marginBottom:2}}>one per line, use &#x2192; or &gt;</div><textarea value={rulesIn} onChange={e=>setRulesIn(e.target.value)} style={{...IS,height:72,resize:"vertical",lineHeight:1.6}}/></div>
@@ -354,14 +365,14 @@ function App(){
           <div><div style={LS}>L-STRING</div><div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"6px 8px",fontSize:10,color:"#2dd4b0",wordBreak:"break-all",lineHeight:1.5,minHeight:34}}>{lstring||"—"}</div></div>
           <div><div style={LS}>SEQUENCE ({catSeq.length})</div><div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"6px 8px",fontSize:12,wordBreak:"break-all",letterSpacing:2,minHeight:26}}>{catSeq.slice(0,30).map((c,i)=><span key={i} style={{color:CATS[c]?.col||"#d8e8f5",fontWeight:i===animIdx?700:400,textDecoration:i===animIdx?"underline":"none",filter:"brightness(.85)"}}>{c}</span>)}{catSeq.length>30&&<span style={{color:"#8ab4d4"}}>…</span>}</div></div>
         </aside>
-        <main style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
+        <main className="demo-main" style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderBottom:"1px solid #2e4a60"}}>
-            <button onClick={()=>{setAnimIdx(0);setPlaying(false);}} style={CB}>&#9612;&#9612;</button>
-            <button onClick={()=>setPlaying(p=>!p)} style={{...CB,background:playing?"#0d3028":"#1a2e42",color:playing?"#34d399":"#d8e8f5"}}>{playing?"&#9646;&#9646; PAUSE":"&#9654; PLAY"}</button>
+            <button onClick={()=>{setAnimIdx(0);setPlaying(false);}} style={CB}>↺ RESET</button>
+            <button onClick={()=>setPlaying(p=>!p)} style={{...CB,background:playing?"#0d3028":"#1a2e42",color:playing?"#34d399":"#d8e8f5"}}>{playing?"❚❚ PAUSE":"▶ PLAY"}</button>
             <div style={{fontSize:11,color:"#8ab4d4",marginLeft:6}}>Step {animIdx+1}/{path.length}&nbsp;|&nbsp;{current?<>Cat <span style={{color:current.cat.col}}>{current.id}</span> ({current.cat.label})</>:"—"}</div>
           </div>
-          <div style={{flex:1,display:"flex",justifyContent:"center",alignItems:"center",padding:8}}>
-            <svg viewBox={`0 0 ${TW} ${TH}`} width={TW} height={TH} style={{maxWidth:"100%",overflow:"visible"}}>
+          <div className="demo-map" style={{flex:1,display:"flex",justifyContent:"center",alignItems:"center",padding:8,minHeight:0}}>
+            <svg viewBox={`0 0 ${TW} ${TH}`} style={{width:"100%",height:"100%",maxWidth:TW+60,overflow:"visible"}}>
               <defs>{Object.entries(CATS).map(([id,cat])=><radialGradient key={id} id={`eg_${id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={cat.col} stopOpacity=".2"/><stop offset="100%" stopColor={cat.col} stopOpacity="0"/></radialGradient>)}</defs>
               <rect x={0} y={0} width={TW} height={TH} fill="#192633"/>
               <polygon points={`${V0.x},${V0.y} ${V1.x},${V1.y} ${V2.x},${V2.y}`} fill="#253545" stroke="#2e4a60" strokeWidth={1.5}/>
@@ -373,19 +384,19 @@ function App(){
               {path.length>1&&animIdx>0&&<polyline points={visitedPts} fill="none" stroke="#2dd4b0" strokeWidth={1.5} opacity={.7}/>}
               {path.slice(0,animIdx).map((pt,i)=><circle key={i} cx={pt.x} cy={pt.y} r={2.5} fill={pt.cat.col} opacity={.25+.45*(i/animIdx)}/>)}
               {current&&<g><circle cx={current.x} cy={current.y} r={14} fill="none" stroke={current.cat.col} strokeWidth={1} opacity={.3}><animate attributeName="r" values="10;18;10" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".3;0;.3" dur="1.2s" repeatCount="indefinite"/></circle><circle cx={current.x} cy={current.y} r={5} fill={current.cat.col}/></g>}
-              {highlight&&CATS[highlight]&&(()=>{const cat=CATS[highlight],c=bary(...cat.bc);return<g><rect x={c.x+10} y={c.y-20} width={82} height={26} rx={3} fill="#1e2d3d" stroke={cat.col} strokeWidth={.8}/><text x={c.x+18} y={c.y-7} fontSize={9} fill={cat.col} fontFamily="monospace">{highlight}: {cat.label}</text><text x={c.x+18} y={c.y+4} fontSize={8} fill="#8ab4d4" fontFamily="monospace">&#x2022;modal &#xD7;metro</text></g>;})()} 
+              {highlight&&CATS[highlight]&&(()=>{const cat=CATS[highlight],c=bary(...cat.bc);return<g><rect x={c.x+10} y={c.y-20} width={82} height={26} rx={3} fill="#1e2d3d" stroke={cat.col} strokeWidth={.8}/><text x={c.x+18} y={c.y-7} fontSize={9} fill={cat.col} fontFamily="monospace">{highlight}: {cat.label}</text><text x={c.x+18} y={c.y+4} fontSize={8} fill="#8ab4d4" fontFamily="monospace">&#x2022;modal &#xD7;metro</text></g>;})()}
             </svg>
           </div>
           <div style={{borderTop:"1px solid #2e4a60",padding:"6px 12px",display:"flex",flexWrap:"wrap",gap:"4px 10px"}}>{Object.entries(CATS).map(([id,cat])=><div key={id} style={{display:"flex",alignItems:"center",gap:3,fontSize:10,cursor:"pointer"}} onMouseEnter={()=>setHighlight(id)} onMouseLeave={()=>setHighlight(null)}><div style={{width:7,height:7,borderRadius:"50%",background:cat.col,opacity:highlight===id?1:.6}}/><span style={{color:highlight===id?cat.col:"#8ab4d4"}}>{id} {cat.label}</span></div>)}</div>
         </main>
-        <aside style={{width:195,flexShrink:0,background:"#253545",borderLeft:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto",minHeight:0}}>
+        <aside className="demo-right" style={{width:195,flexShrink:0,background:"#253545",borderLeft:"1px solid #2e4a60",padding:"12px",display:"flex",flexDirection:"column",gap:10,overflowY:"auto",minHeight:0}}>
           <div style={LS}>TIMING OUTPUT</div>
           <div style={{background:"#1e2d3d",border:"1px solid #2e4a60",borderRadius:4,padding:"7px",minHeight:90,overflowY:"auto"}}>
             {path.slice(0,animIdx+1).map((pt,i)=>{const tims=pt.timings,isCur=i===animIdx;return<div key={i} style={{display:"flex",alignItems:"flex-end",gap:2,marginBottom:4,opacity:isCur?1:.3}}><span style={{fontSize:9,color:"#a8c8e8",width:11}}>{pt.id}</span>{tims.map((v,j)=><div key={j} style={{width:15,height:Math.round(v*55)+4,background:isCur?pt.cat.col:"#2a4a62",filter:isCur?"brightness(.85)":"none",borderRadius:2,transition:"height .3s"}}/>)}<span style={{fontSize:8,color:"#8ab4d4",marginLeft:2}}>{tims.map(v=>v.toFixed(2)).join(":")}</span></div>;})}
             {path.length===0&&<div style={{color:"#4a6a85",fontSize:11,textAlign:"center",paddingTop:12}}>Play to see timing</div>}
           </div>
           {current&&<div style={{background:"#1e2d3d",border:`1px solid ${current.cat.col}`,borderRadius:4,padding:"8px 10px",fontSize:11}}><div style={{color:current.cat.col,marginBottom:4,fontWeight:700,filter:"brightness(1.2)"}}>Cat [{current.id}] {current.cat.label}</div><div style={{color:"#a8c8e8",lineHeight:1.75}}><div>I&#x2081;: <span style={{color:"#d8e8f5"}}>{current.timings[0].toFixed(4)}</span></div><div>I&#x2082;: <span style={{color:"#d8e8f5"}}>{current.timings[1].toFixed(4)}</span></div><div>I&#x2083;: <span style={{color:"#d8e8f5"}}>{current.timings[2].toFixed(4)}</span></div><div style={{marginTop:5,borderTop:"1px solid #2e4a60",paddingTop:5,fontSize:10}}>Modal: [{current.cat.bc.map(v=>v.toFixed(3)).join(", ")}]</div></div></div>}
-          {current&&(()=>{const[m1,m2,m3]=current.cat.bc,[t1,t2,t3]=current.timings,pct=Math.min(1,Math.sqrt((t1-m1)**2+(t2-m2)**2+(t3-m3)**2)/.05);return<div style={{fontSize:11}}><div style={LS}>ENTROPY H</div><div style={{height:7,background:"#1a3048",borderRadius:4,overflow:"hidden",margin:"4px 0"}}><div style={{height:"100%",borderRadius:4,width:`${pct*100}%`,background:"linear-gradient(90deg,#2dd4b0,#f59e0b)",transition:"width .4s"}}/></div><div style={{color:"#8ab4d4",fontSize:10}}>H &#x2248; {pct.toFixed(3)}</div></div>;})()} 
+          {current&&(()=>{const[m1,m2,m3]=current.cat.bc,[t1,t2,t3]=current.timings,pct=Math.min(1,Math.sqrt((t1-m1)**2+(t2-m2)**2+(t3-m3)**2)/.05);return<div style={{fontSize:11}}><div style={LS}>ENTROPY H</div><div style={{height:7,background:"#1a3048",borderRadius:4,overflow:"hidden",margin:"4px 0"}}><div style={{height:"100%",borderRadius:4,width:`${pct*100}%`,background:"linear-gradient(90deg,#2dd4b0,#f59e0b)",transition:"width .4s"}}/></div><div style={{color:"#8ab4d4",fontSize:10}}>H &#x2248; {pct.toFixed(3)}</div></div>;})()}
           <div style={{fontSize:10,color:"#6a8aaa",lineHeight:1.7,borderTop:"1px solid #2e4a60",paddingTop:8}}><div>&#x2022; modal centroid (H=0)</div><div>&#xD7; metronomic position</div></div>
         </aside>
       </div>
